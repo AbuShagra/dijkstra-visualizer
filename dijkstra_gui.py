@@ -11,8 +11,6 @@ if 'edges' not in st.session_state:
     st.session_state.edges = []
 if 'directed' not in st.session_state:
     st.session_state.directed = False
-if 'graph_updated' not in st.session_state:
-    st.session_state.graph_updated = False
 
 # Graph type selector
 directed = st.checkbox("Use Directed Graph", value=st.session_state.directed)
@@ -32,21 +30,17 @@ with col2:
     node2 = st.text_input("To Node", key="to_node")
 weight = st.number_input("Edge Weight", min_value=1, value=1, step=1)
 
-edge_added = False
-
 if st.button("Add Edge"):
     if node1.strip() and node2.strip():
         st.session_state.edges.append((node1.strip(), node2.strip(), weight))
-        edge_added = True
         st.success(f"Edge added: {node1.strip()} → {node2.strip()} (Weight {weight})")
 
 if st.button("Reset Graph"):
     st.session_state.edges = []
-    st.session_state.graph_updated = True
     st.success("Graph has been reset.")
 
-# Show graph if new edge added or reset
-if edge_added or st.session_state.graph_updated:
+# Always show current graph if edges exist
+if st.session_state.edges:
     st.subheader("📊 Current Graph")
     pos = nx.spring_layout(G)
     edge_labels = nx.get_edge_attributes(G, 'weight')
@@ -55,8 +49,6 @@ if edge_added or st.session_state.graph_updated:
     nx.draw(G, pos, with_labels=True, node_color='lightblue', node_size=2000, font_size=14)
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
     st.pyplot(plt.gcf())
-
-    st.session_state.graph_updated = False
 
 # Run Dijkstra if enough nodes
 if G.number_of_nodes() > 1:
