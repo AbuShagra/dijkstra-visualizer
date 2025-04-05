@@ -32,10 +32,12 @@ with col2:
     node2 = st.text_input("To Node", key="to_node")
 weight = st.number_input("Edge Weight", min_value=1, value=1, step=1)
 
+edge_added = False
+
 if st.button("Add Edge"):
     if node1.strip() and node2.strip():
         st.session_state.edges.append((node1.strip(), node2.strip(), weight))
-        st.session_state.graph_updated = True
+        edge_added = True
         st.success(f"Edge added: {node1.strip()} → {node2.strip()} (Weight {weight})")
 
 if st.button("Reset Graph"):
@@ -43,8 +45,8 @@ if st.button("Reset Graph"):
     st.session_state.graph_updated = True
     st.success("Graph has been reset.")
 
-# Show graph only after update
-if st.session_state.graph_updated:
+# Show graph if new edge added or reset
+if edge_added or st.session_state.graph_updated:
     st.subheader("📊 Current Graph")
     pos = nx.spring_layout(G)
     edge_labels = nx.get_edge_attributes(G, 'weight')
@@ -114,9 +116,6 @@ if G.number_of_nodes() > 1:
         else:
             st.error(f"No path from {start} to {end}")
 
-        st.session_state.graph_updated = True  # Trigger path redraw
-
-        # Show graph with path
         st.subheader("📊 Path Highlight")
         pos = nx.spring_layout(G)
         edge_labels = nx.get_edge_attributes(G, 'weight')
