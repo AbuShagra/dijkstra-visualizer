@@ -33,11 +33,11 @@ weight = st.number_input("Edge Weight", min_value=1, value=1, step=1)
 if st.button("Add Edge"):
     if node1.strip() and node2.strip():
         st.session_state.edges.append((node1.strip(), node2.strip(), weight))
-        st.experimental_rerun()
+        st.success(f"Edge added: {node1.strip()} → {node2.strip()} (Weight {weight})")
 
 if st.button("Reset Graph"):
     st.session_state.edges = []
-    st.experimental_rerun()
+    st.success("Graph has been reset.")
 
 # Live graph view
 st.subheader("📊 Current Graph")
