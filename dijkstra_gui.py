@@ -11,8 +11,13 @@ if 'edges' not in st.session_state:
     st.session_state.edges = []
 if 'directed' not in st.session_state:
     st.session_state.directed = False
+if 'graph_version' not in st.session_state:
+    st.session_state.graph_version = 0  # Increases to force redraw
 
-# Graph type selector
+# Dummy widget that depends on graph_version
+_ = st.number_input("Version", value=st.session_state.graph_version, key="version_display", label_visibility="collapsed")
+
+# Graph type toggle
 directed = st.checkbox("Use Directed Graph", value=st.session_state.directed)
 st.session_state.directed = directed
 G = nx.DiGraph() if directed else nx.Graph()
@@ -21,7 +26,7 @@ G = nx.DiGraph() if directed else nx.Graph()
 for u, v, w in st.session_state.edges:
     G.add_edge(u, v, weight=w)
 
-# Build graph UI
+# Input edge
 st.subheader("Build Your Graph")
 col1, col2 = st.columns(2)
 with col1:
@@ -33,13 +38,15 @@ weight = st.number_input("Edge Weight", min_value=1, value=1, step=1)
 if st.button("Add Edge"):
     if node1.strip() and node2.strip():
         st.session_state.edges.append((node1.strip(), node2.strip(), weight))
+        st.session_state.graph_version += 1
         st.success(f"Edge added: {node1.strip()} → {node2.strip()} (Weight {weight})")
 
 if st.button("Reset Graph"):
     st.session_state.edges = []
+    st.session_state.graph_version += 1
     st.success("Graph has been reset.")
 
-# Always show current graph if edges exist
+# Always draw current graph
 if st.session_state.edges:
     st.subheader("📊 Current Graph")
     pos = nx.spring_layout(G)
@@ -50,7 +57,7 @@ if st.session_state.edges:
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
     st.pyplot(plt.gcf())
 
-# Run Dijkstra if enough nodes
+# Run Dijkstra
 if G.number_of_nodes() > 1:
     st.subheader("Run Dijkstra")
     start = st.selectbox("Start Node", sorted(G.nodes), key="start_node")
